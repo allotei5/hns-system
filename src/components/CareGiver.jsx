@@ -28,26 +28,26 @@ const CareGiver = ({ careGiver, careGivers, setCareGivers }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-3 content-end mb-3 ">
       <div className="col-span-2">
-      <InputText
-        label="Care Giver Name"
-        htFor={`careGiverName-${uniqueId}`}
-        required={true}
-        value={careGiver.name}
-        setValue={updateName}
-        className=""
-      />
+        <InputText
+          label="Care Giver Name"
+          htFor={`careGiverName-${uniqueId}`}
+          required={true}
+          value={careGiver.name}
+          setValue={updateName}
+          className=""
+        />
       </div>
       <div className="col-span-2">
-      <InputSelect
-        label="Relationship to client"
-        htFor={`careGiverRelation-${uniqueId}`}
-        required={true}
-        options={optionsForRelationship}
-        value={careGiver.relation}
-        setValue={updateRelation}
-      />
+        <InputSelect
+          label="Relationship to client"
+          htFor={`careGiverRelation-${uniqueId}`}
+          required={true}
+          options={optionsForRelationship}
+          value={careGiver.relation}
+          setValue={updateRelation}
+        />
       </div>
-      
+
       <div className="self-end ">
         <button
           type="button"

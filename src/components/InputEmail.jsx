@@ -1,6 +1,6 @@
 import React from "react";
 
-const InputNumber = ({ label, htFor, required }) => {
+const InputEmail = ({ label, htFor, required, value, setValue }) => {
   return (
     <div className="">
       <label
@@ -10,8 +10,10 @@ const InputNumber = ({ label, htFor, required }) => {
         {label}:
       </label>
       <input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         required={required}
-        type="number"
+        type="email"
         id={htFor}
         name={htFor}
         className="w-full rounded border border-[#cecece] bg-[#f6f6f6] text-[#717171] text-sm"
@@ -20,4 +22,4 @@ const InputNumber = ({ label, htFor, required }) => {
   );
 };
 
-export default InputNumber;
+export default InputEmail;
