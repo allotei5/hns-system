@@ -15,7 +15,9 @@ const GoogleTranslate = () => {
     script.async = true;
     document.body.appendChild(script);
 
-    window.googleTranslateElementInit = googleTranslateElementInit;
+    if (!window.googleTranslateElementInit) {
+        window.googleTranslateElementInit = googleTranslateElementInit;
+    }
   }, []);
 
   return <div id="google_translate_element"></div>;

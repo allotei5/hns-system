@@ -1,4 +1,4 @@
-import { useState, useEffect, useId } from "react";
+import { useState, useEffect, useId, useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import InputText from "../components/InputText";
@@ -9,6 +9,9 @@ import CareGiver from "../components/CareGiver";
 import RecepientPerson from "../components/RecepientPerson";
 import InputEmail from "../components/InputEmail";
 import Signature from "../components/Signature";
+import AlertModal from "../components/AlertModal";
+
+import { AlertContext } from "../contexts/AlertContext";
 
 const ConsentToReleaseClientInformation = () => {
   const [clientName, setClientName] = useState("");
@@ -17,6 +20,11 @@ const ConsentToReleaseClientInformation = () => {
   const [pronouns, setPronouns] = useState("");
   const [recepients, setRecepients] = useState([]);
   const [email, setEmail] = useState("");
+  const [ dob, setDob ] = useState("")
+  const [ today, setToday ] = useState(new Date().toISOString().substring(0, 10))
+  // console.log(new Date().toISOString().substring(0, 10))
+
+  const { alert, setAlert } = useContext(AlertContext)
 
   const addCareGiver = () => {
     const uniqueId = uuidv4();
@@ -39,6 +47,15 @@ const ConsentToReleaseClientInformation = () => {
       },
     ]);
   };
+  // if (!alert) {
+  //   if (window.confirm("This form is available in languages other than English. Would you like to translate it?")) {
+  //     // set state to highlight translate
+  //     setAlert(true)
+  //   }else {
+  //     setAlert(false)
+  //   }
+  // }
+  
 
   return (
     <div>
@@ -78,6 +95,9 @@ const ConsentToReleaseClientInformation = () => {
             label="Date Of Birth"
             htFor="dateOfBirth"
             required={true}
+            value={dob}
+            setValue={setDob}
+            isDisabled={false}
           />
         </div>
         <p className="my-5">
@@ -244,6 +264,18 @@ const ConsentToReleaseClientInformation = () => {
             <p className="font-black text-xl">By signing below, you confirm that you have legal authority to give consent.</p>
             <Signature />
         </div>
+        <div className="md:w-1/2">
+          <InputDate
+              label="Today's Date"
+              htFor="todaysDate"
+              required={true}
+              value={today}
+              setValue={setToday}
+              isDisabled={true}
+            />
+          </div>
+          <button type="button" className="text-white bg-[#923D41] border border-[#923D41] rounded px-2 md:px-4 py-2 text-sm mt-2">Submit</button>
+
       </form>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 
-const InputDate = ({ label, htFor, required }) => {
+const InputDate = ({ label, htFor, required, value, setValue, isDisabled }) => {
   return (
     <div className="">
       <label
@@ -15,6 +15,9 @@ const InputDate = ({ label, htFor, required }) => {
         id={htFor}
         name={htFor}
         className="w-full rounded border border-[#cecece] bg-[#f6f6f6] text-[#717171] text-sm"
+        disabled={isDisabled}
+        value={value}
+        onChange={e => setValue(e.target.value)}
       ></input>
     </div>
   );
