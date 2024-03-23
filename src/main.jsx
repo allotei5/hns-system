@@ -7,9 +7,7 @@ import "./index.css";
 import { AlertProvider } from "./contexts/AlertContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
     <AlertProvider>
       <App />
     </AlertProvider>
-  </React.StrictMode>
 );

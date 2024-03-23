@@ -1,5 +1,6 @@
 import { useState, useEffect, useId, useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
+import Joi from "joi";
 
 import InputText from "../components/InputText";
 import InputSelect from "../components/InputSelect";
@@ -274,7 +275,7 @@ const ConsentToReleaseClientInformation = () => {
               isDisabled={true}
             />
           </div>
-          <button type="button" className="text-white bg-[#923D41] border border-[#923D41] rounded px-2 md:px-4 py-2 text-sm mt-2">Submit</button>
+          <button type="button" className="text-white bg-[#28AF2E] border border-[#28AF2E] rounded px-2 md:px-4 py-2 text-sm mt-2">Submit</button>
 
       </form>
     </div>
