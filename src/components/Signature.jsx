@@ -1,8 +1,15 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 const Signature = () => {
     const canvasRef = useRef(null)
+    const [ signatureImage, setSignatureImage ] = useState("")
+
+    const getSignatureImage = () => {
+      const imageDataUrl = canvasRef.current.toDataURL()
+      setSignatureImage(imageDataUrl)
+      console.log(imageDataUrl)
+    }
     
   return (
     <div>
@@ -15,6 +22,7 @@ const Signature = () => {
         ref={canvasRef}
       />
       <button onClick={e => canvasRef.current.clear() } type="button" className="text-white bg-[#923D41] border border-[#923D41] rounded px-2 md:px-4 py-2 text-sm mt-2">Clear Canvas</button>
+      <button onClick={getSignatureImage} type="button" className="text-white bg-[#923D41] border border-[#923D41] rounded px-2 md:px-4 py-2 text-sm mt-2">Save Image</button>
     </div>
   );
 };

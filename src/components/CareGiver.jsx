@@ -32,7 +32,7 @@ const CareGiver = ({ careGiver, careGivers, setCareGivers }) => {
           label="Care Giver Name"
           htFor={`careGiverName-${uniqueId}`}
           required={true}
-          value={careGiver.name}
+          value={careGiver.care_giver_name}
           setValue={updateName}
           className=""
         />
@@ -43,7 +43,7 @@ const CareGiver = ({ careGiver, careGivers, setCareGivers }) => {
           htFor={`careGiverRelation-${uniqueId}`}
           required={true}
           options={optionsForRelationship}
-          value={careGiver.relation}
+          value={careGiver.relationship_to_client}
           setValue={updateRelation}
         />
       </div>
