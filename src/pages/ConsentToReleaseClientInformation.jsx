@@ -29,6 +29,7 @@ const ConsentToReleaseClientInformation = () => {
   const [communicateRadio, setCommunicateRadio] = useState("");
   const [communicateEmail, setCommunicateEmail] = useState("");
   const [communicateText, setCommunicateText] = useState("");
+  const [ signatureImage, setSignatureImage ] = useState("")
   // console.log(new Date().toISOString().substring(0, 10))
 
   const [errors, setErrors] = useState({});
@@ -52,7 +53,7 @@ const ConsentToReleaseClientInformation = () => {
       ...recepients,
       {
         id: uniqueId,
-        name: "",
+        institution_name: "",
       },
     ]);
   };
@@ -65,25 +66,25 @@ const ConsentToReleaseClientInformation = () => {
 
   const recepientSchema = Joi.object({
     id: Joi.required(),
-    name: Joi.string().max(50).required(),
+    institution_name: Joi.string().max(50).required(),
   });
 
   const schema = Joi.object({
-    clientName: Joi.string().min(3).max(50),
-    healthCardName: Joi.string(),
+    client_name: Joi.string().min(3).max(50),
+    name_on_health_card: Joi.string(),
     pronouns: Joi.required(),
-    healthCardNumber: Joi.number()
+    health_card_number: Joi.number()
       .integer()
       .max(9999999999)
       .min(1000000000)
       .required(),
-    dob: Joi.date().required(),
-    careGivers: Joi.array().items(careGiverSchema),
-    recepients: Joi.array().items(recepientSchema),
-    communicateRadio: Joi.valid("yes", "no").required(),
-    communicateEmail: Joi.valid("yes", "no").required(),
-    communicateText: Joi.valid("yes", "no", "not applicable").required(),
-    email: Joi.string()
+    date_of_birth: Joi.date().required(),
+    caregivers: Joi.array().items(careGiverSchema),
+    caregiver_types: Joi.array().items(recepientSchema),
+    permission_to_communicate: Joi.valid("yes", "no").required(),
+    permission_to_email: Joi.valid("yes", "no").required(),
+    permission_to_text: Joi.valid("yes", "no", "not applicable").required(),
+    email_to_communicate_with: Joi.string()
   });
 
   // const [formData, setFormData] = useState({});
@@ -97,15 +98,30 @@ const ConsentToReleaseClientInformation = () => {
       pronouns,
       health_card_number: healthCardNumber,
       date_of_birth: dob,
-      care_givers: careGivers,
-      recepients,
+      caregivers: careGivers,
+      caregiver_types: recepients,
       permission_to_communicate: communicateRadio,
-      contact_me: communicateEmail,
-      communicateText,
+      permission_to_email: communicateEmail,
+      permission_to_text: communicateText,
+      email_to_communicate_with: email,
+      date_of_signature: today,
+      signatureImage,
+    };
+    let formData1 = {
+      client_name: clientName,
+      name_on_health_card: healthCardName,
+      pronouns,
+      health_card_number: healthCardNumber,
+      date_of_birth: dob,
+      caregivers: careGivers,
+      caregiver_types: recepients,
+      permission_to_communicate: communicateRadio,
+      permission_to_email: communicateEmail,
+      permission_to_text: communicateText,
       email_to_communicate_with: email,
     };
 
-    const { error } = schema.validate(formData);
+    const { error } = schema.validate(formData1);
 
     if (!error) {
       finalFormData = { ...formData };
@@ -155,7 +171,7 @@ const ConsentToReleaseClientInformation = () => {
               value={clientName}
               setValue={setClientName}
             />
-            {errors.clientName && <ErrorDiv message={errors.clientName} />}
+            {errors.client_name && <ErrorDiv message={errors.client_name} />}
           </div>
 
           <div>
@@ -166,8 +182,8 @@ const ConsentToReleaseClientInformation = () => {
               value={healthCardName}
               setValue={setHealthCardName}
             />
-            {errors.healthCardName && (
-              <ErrorDiv message={errors.healthCardName} />
+            {errors.name_on_health_card && (
+              <ErrorDiv message={errors.name_on_health_card} />
             )}
           </div>
           <div>
@@ -189,8 +205,8 @@ const ConsentToReleaseClientInformation = () => {
               value={healthCardNumber}
               setValue={setHealthCardNumber}
             />
-            {errors.healthCardNumber && (
-              <ErrorDiv message={errors.healthCardNumber} />
+            {errors.health_card_number && (
+              <ErrorDiv message={errors.health_card_number} />
             )}
           </div>
           <div>
@@ -202,7 +218,7 @@ const ConsentToReleaseClientInformation = () => {
               setValue={setDob}
               isDisabled={false}
             />
-            {errors.dob && <ErrorDiv message={errors.dob} />}
+            {errors.date_of_birth && <ErrorDiv message={errors.date_of_birth} />}
           </div>
         </div>
         <p className="my-5">
@@ -217,7 +233,7 @@ const ConsentToReleaseClientInformation = () => {
               setCareGivers={setCareGivers}
             />
           ))}
-          {errors.careGivers && <ErrorDiv message={errors.careGivers} />}
+          {errors.caregivers && <ErrorDiv message={errors.caregivers} />}
           <button
             onClick={addCareGiver}
             type="button"
@@ -241,7 +257,7 @@ const ConsentToReleaseClientInformation = () => {
               setRecepients={setRecepients}
             />
           ))}
-          {errors.recepients && <ErrorDiv message={errors.recepients} />}
+          {errors.caregiver_types && <ErrorDiv message={errors.caregiver_types} />}
           <button
             onClick={addRecepient}
             type="button"
@@ -278,8 +294,8 @@ const ConsentToReleaseClientInformation = () => {
                 </label>
               </div>
             ))}
-            {errors.communicateRadio && (
-              <ErrorDiv message={errors.communicateRadio} />
+            {errors.permission_to_communicate && (
+              <ErrorDiv message={errors.permission_to_communicate} />
             )}
           </div>
         </div>
@@ -307,8 +323,8 @@ const ConsentToReleaseClientInformation = () => {
                 </label>
               </div>
             ))}
-            {errors.communicateEmail && (
-              <ErrorDiv message={errors.communicateEmail} />
+            {errors.permission_to_email && (
+              <ErrorDiv message={errors.permission_to_email} />
             )}
           </div>
           <div className="md:w-1/2">
@@ -319,7 +335,7 @@ const ConsentToReleaseClientInformation = () => {
               value={email}
               setValue={setEmail}
             />
-            
+            {errors.email_to_communicate_with && (<ErrorDiv message={errors.email_to_communicate_with} />)}
           </div>
         </div>
         <div className="mt-3 mb-5">
@@ -350,8 +366,8 @@ const ConsentToReleaseClientInformation = () => {
                 </label>
               </div>
             ))}
-            {errors.communicateText && (
-              <ErrorDiv message={errors.communicateText} />
+            {errors.permission_to_text && (
+              <ErrorDiv message={errors.permission_to_text} />
             )}
           </div>
         </div>
@@ -373,7 +389,7 @@ const ConsentToReleaseClientInformation = () => {
             By signing below, you confirm that you have legal authority to give
             consent.
           </p>
-          <Signature />
+          <Signature signatureImage={signatureImage} setSignatureImage={setSignatureImage} />
         </div>
         <div className="md:w-1/2">
           <InputDate

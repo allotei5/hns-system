@@ -5,18 +5,18 @@ import InputSelect from "./InputSelect";
 const CareGiver = ({ careGiver, careGivers, setCareGivers }) => {
   const uniqueId = useId();
 
-  const updateName = (name) => {
+  const updateName = (care_giver_name) => {
     setCareGivers(
       careGivers.map((cg) =>
-        cg.id == careGiver.id ? { ...careGiver, name } : cg
+        cg.id == careGiver.id ? { ...careGiver, care_giver_name } : cg
       )
     );
   };
 
-  const updateRelation = (relation) => {
+  const updateRelation = (relationship_to_client) => {
     setCareGivers(
       careGivers.map((cg) =>
-        cg.id == careGiver.id ? { ...careGiver, relation } : cg
+        cg.id == careGiver.id ? { ...careGiver, relationship_to_client } : cg
       )
     );
   };

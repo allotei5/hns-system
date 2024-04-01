@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
-const Signature = () => {
+const Signature = ({ signatureImage, setSignatureImage }) => {
     const canvasRef = useRef(null)
-    const [ signatureImage, setSignatureImage ] = useState("")
+    // const [ signatureImage, setSignatureImage ] = useState("")
 
     const getSignatureImage = () => {
       const imageDataUrl = canvasRef.current.toDataURL()
@@ -17,12 +17,13 @@ const Signature = () => {
         Client or Legal Guardian Signature:
       </p>
       <SignatureCanvas
-        penColor="green"
+        penColor="black"
         canvasProps={{ width:"300", height: "100", className: "sigCanvas border border-b bg-[#f6f6f6] rounded", }}
         ref={canvasRef}
+        onEnd={getSignatureImage}
       />
-      <button onClick={e => canvasRef.current.clear() } type="button" className="text-white bg-[#923D41] border border-[#923D41] rounded px-2 md:px-4 py-2 text-sm mt-2">Clear Canvas</button>
-      <button onClick={getSignatureImage} type="button" className="text-white bg-[#923D41] border border-[#923D41] rounded px-2 md:px-4 py-2 text-sm mt-2">Save Image</button>
+      <button onClick={e => {canvasRef.current.clear(); setSignatureImage("")} } type="button" className="text-white bg-[#923D41] border border-[#923D41] rounded px-2 md:px-4 py-2 text-sm mt-2">Clear Canvas</button>
+      {/* <button onClick={getSignatureImage} type="button" className="text-white bg-[#923D41] border border-[#923D41] rounded px-2 md:px-4 py-2 text-sm mt-2">Save Image</button> */}
     </div>
   );
 };
