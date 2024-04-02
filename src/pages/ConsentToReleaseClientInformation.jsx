@@ -1,6 +1,9 @@
 import { useState, useEffect, useId, useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Joi from "joi";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 import InputText from "../components/InputText";
 import InputSelect from "../components/InputSelect";
@@ -15,26 +18,38 @@ import ErrorDiv from "../components/ErrorDiv";
 import api from "../api/api";
 
 import { AlertContext } from "../contexts/AlertContext";
+import { FormDataContext } from "../contexts/FormDataContext";
+import { useNavigate } from "react-router-dom";
+import { saveInLocalStorage, retrieveFromLocalStorage } from "../utilities";
+
 
 const ConsentToReleaseClientInformation = () => {
-  const [clientName, setClientName] = useState("");
-  const [healthCardName, setHealthCardName] = useState("");
-  const [careGivers, setCareGivers] = useState([]);
-  const [pronouns, setPronouns] = useState("");
-  const [healthCardNumber, setHealthCardNumber] = useState("");
-  const [recepients, setRecepients] = useState([]);
-  const [email, setEmail] = useState("");
-  const [dob, setDob] = useState("");
+  const { savedFormData, setSavedFormData } = useContext(FormDataContext);
+
+  const [clientName, setClientName] = useState(savedFormData?.client_name || "");
+  const [healthCardName, setHealthCardName] = useState(savedFormData?.name_on_health_card || "");
+  const [careGivers, setCareGivers] = useState(savedFormData?.caregivers || []);
+  const [pronouns, setPronouns] = useState(savedFormData?.pronouns || "");
+  const [healthCardNumber, setHealthCardNumber] = useState(savedFormData?.health_card_number || "");
+  const [recepients, setRecepients] = useState(savedFormData?.caregiver_types || []);
+  const [email, setEmail] = useState(savedFormData?.email_to_communicate_with || "");
+  const [dob, setDob] = useState(savedFormData?.date_of_birth || "");
   const [today, setToday] = useState(new Date().toISOString().substring(0, 10));
-  const [communicateRadio, setCommunicateRadio] = useState("");
-  const [communicateEmail, setCommunicateEmail] = useState("");
-  const [communicateText, setCommunicateText] = useState("");
-  const [ signatureImage, setSignatureImage ] = useState("")
+  const [communicateRadio, setCommunicateRadio] = useState(savedFormData?.contact_me || "");
+  const [communicateEmail, setCommunicateEmail] = useState(savedFormData?.permission_to_email || "")
+  const [communicateText, setCommunicateText] = useState(savedFormData?.permission_to_text || "")
+  const [ signatureImage, setSignatureImage ] = useState(savedFormData?.image_base64 || "")
+
+  const [ isLoading, setIsLoading ] = useState(false)
+  const [ serverErrors, setServerErrors ] = useState([])
+  const [ showSuccessAlert, setShowSuccessAlert ] = useState(false)
   // console.log(new Date().toISOString().substring(0, 10))
 
   const [errors, setErrors] = useState({});
 
   const { alert, setAlert } = useContext(AlertContext);
+
+  const navigate = useNavigate();
 
   const addCareGiver = () => {
     const uniqueId = uuidv4();
@@ -53,6 +68,7 @@ const ConsentToReleaseClientInformation = () => {
       ...recepients,
       {
         id: uniqueId,
+        relationship_to_client: "",
         institution_name: "",
       },
     ]);
@@ -66,6 +82,7 @@ const ConsentToReleaseClientInformation = () => {
 
   const recepientSchema = Joi.object({
     id: Joi.required(),
+    relationship_to_client: Joi.string().max(50).required(),
     institution_name: Joi.string().max(50).required(),
   });
 
@@ -80,14 +97,14 @@ const ConsentToReleaseClientInformation = () => {
       .required(),
     date_of_birth: Joi.date().required(),
     caregivers: Joi.array().items(careGiverSchema),
-    caregiver_types: Joi.array().items(recepientSchema),
+    caregiver_types: Joi.array().items(recepientSchema).required(),
     permission_to_communicate: Joi.valid("yes", "no").required(),
     permission_to_email: Joi.valid("yes", "no").required(),
     permission_to_text: Joi.valid("yes", "no", "not applicable").required(),
-    email_to_communicate_with: Joi.string()
+    email_to_communicate_with: Joi.string(),
+    image_base64: Joi.string().required(),
   });
 
-  // const [formData, setFormData] = useState({});
   var finalFormData = {};
 
   const validate = () => {
@@ -100,12 +117,12 @@ const ConsentToReleaseClientInformation = () => {
       date_of_birth: dob,
       caregivers: careGivers,
       caregiver_types: recepients,
-      permission_to_communicate: communicateRadio,
+      contact_me: communicateRadio,
       permission_to_email: communicateEmail,
       permission_to_text: communicateText,
       email_to_communicate_with: email,
       date_of_signature: today,
-      signatureImage,
+      image_base64: signatureImage,
     };
     let formData1 = {
       client_name: clientName,
@@ -119,6 +136,7 @@ const ConsentToReleaseClientInformation = () => {
       permission_to_email: communicateEmail,
       permission_to_text: communicateText,
       email_to_communicate_with: email,
+      image_base64: signatureImage
     };
 
     const { error } = schema.validate(formData1);
@@ -142,28 +160,38 @@ const ConsentToReleaseClientInformation = () => {
     const errors = validate();
     console.log(errors);
     setErrors(errors || {});
+    setServerErrors([])
     if (errors) return;
+
+    setSavedFormData(finalFormData)
+    saveInLocalStorage(finalFormData)
+    toast.loading("Please wait. Generating Preview...")
+    setTimeout(() => {
+      navigate('/print')
+    }, 5000);
 
     console.log("form submitted", finalFormData);
     try {
-      const res = await api.post("/consent", finalFormData);
-      console.log(res)
+      // const res = await api.post("/consent/", finalFormData);
     } catch (error) {
-      console.log(error)
+      
     }
   };
 
-  // if (!alert) {
-  //   if (window.confirm("This form is available in languages other than English. Would you like to translate it?")) {
-  //     // set state to highlight translate
-  //     setAlert(true)
-  //   }else {
-  //     setAlert(false)
-  //   }
-  // }
+
+
+  useEffect(() => {
+    if (savedFormData == null) {
+      let savedData = retrieveFromLocalStorage()
+      if (savedData !== null) {
+        setSavedFormData(savedData)
+      }
+    }
+  }, [])
 
   return (
     <div>
+      <ToastContainer />
       <h1 className="font-semibold text-2xl md:text-3xl mt-2 mb-20 text-center">
         CONSENT TO RELEASE CLIENT INFORMATION
       </h1>
@@ -396,6 +424,9 @@ const ConsentToReleaseClientInformation = () => {
             consent.
           </p>
           <Signature signatureImage={signatureImage} setSignatureImage={setSignatureImage} />
+          {errors.image_base64 && (
+              <ErrorDiv message={errors.image_base64} />
+            )}
         </div>
         <div className="md:w-1/2">
           <InputDate

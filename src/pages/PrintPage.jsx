@@ -1,19 +1,63 @@
 // window.global ||= window;
-import { useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { usePDF } from 'react-to-pdf';
 import logo from "../assets/logo@2x.png";
 import generatePDF from "react-to-pdf";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import AWS from 'aws-sdk';
+import { FormDataContext } from "../contexts/FormDataContext";
+import { retrieveFromLocalStorage } from "../utilities";
+import { useNavigate } from "react-router-dom";
+import api from "../api/api";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const PrintPage = () => {
     // const { toPDF, targetRef } = usePDF({filename: 'page.pdf'});
+
+    const { savedFormData, setSavedFormData } = useContext(FormDataContext)
+    const navigate = useNavigate()
+
+    useEffect(() => {
+      if (savedFormData == null) {
+        let savedData = retrieveFromLocalStorage()
+        if (savedData !== null) {
+          setSavedFormData(savedData)
+        }
+      }
+    }, [])
+
     const targetRef = useRef();
     const handleGenerate = async () => {
-        const pdf = await generatePDF(targetRef, {filename: 'page.pdf'})
-        const uploadedUrl = await uploadPDFToS3(pdf)
-        console.log("Uploaded PDF URL:", uploadedUrl);
+        try {
+          // store the data
+          toast.loading("Saving form...")
+          const res = await api.post("/consent/", savedFormData);
+          // generate pdf
+          toast.loading("Generating PDF...")
+          const pdf = await generatePDF()
+          const uploadedUrl = await uploadPDFToS3(pdf)
+          const res2 = await api.post("/stored-consents/", { ...savedFormData, pdf_url:uploadedUrl });
+
+          toast.loading("Uploading PDF...")
+          toast.success("Your form has been saved")
+          setSavedFormData({
+            caregivers: [],
+            caregiver_types: []
+          })
+          localStorage.removeItem('myJsonObject')
+          setTimeout(() => {
+            navigate('/')
+          }, 2000);
+          
+        } catch (error) {
+          console.log(error)
+          toast.error("There was an error")
+        }
+        
+        // console.log("Uploaded PDF URL:", uploadedUrl);
     }
     const generatePDF = async () => {
         const element = document.getElementById('element-to-capture');
@@ -26,13 +70,15 @@ const PrintPage = () => {
         const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
         pdf.addImage(data, 'PNG', 0, 0, pdfWidth, pdfHeight);
         // console.log(pdf)
-        // pdf.save('downloaded-file.pdf');
+        pdf.save('downloaded-file.pdf');
         console.log('pdf got')
         return pdf.output('blob');
       };
       const uploadPDFToS3 = async (pdfBlob) => {
         const s3 = new AWS.S3({
-          
+            accessKeyId: 'AKIAVRUVP243WUV2M44K',
+            secretAccessKey: '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',
+            region: 'us-west-2',
         });
       
         const params = {
@@ -54,6 +100,7 @@ const PrintPage = () => {
       };
   return (
     <div>
+      <ToastContainer />
       <div ref={targetRef} className="p-24" id="element-to-capture">
         <div className="flex ">
           <div className="md:w-1/5">
@@ -65,25 +112,25 @@ const PrintPage = () => {
         </div>
         <div className="grid grid-cols-5 mb-5">
           <p className="">Client name:</p>
-          <div className="border-b border-black col-span-4"></div>
+          <div className="border-b border-black col-span-4 py-1">{savedFormData?.client_name}</div>
         </div>
         <div className="grid grid-cols-3 mb-5">
           <p className="">Name on health card (if different):</p>
-          <div className="border-b border-black col-span-2"></div>
+          <div className="border-b border-black col-span-2 py-1">{savedFormData?.name_on_health_card}</div>
         </div>
         <div className="grid grid-cols-2 mb-5">
           <div className="grid grid-cols-3">
             <p className=" ">Pronouns (optional):</p>
-            <div className="border-b border-black col-span-2 py-1">he/him</div>
+            <div className="border-b border-black col-span-2 py-1">{savedFormData?.pronouns}</div>
           </div>
           <div className="grid grid-cols-3">
             <p className="">Health Card #:</p>
-            <div className="border-b border-black col-span-2"></div>
+            <div className="border-b border-black col-span-2 py-1">{savedFormData?.health_card_number}</div>
           </div>
         </div>
         <div className="grid grid-cols-3 mb-10">
           <p className="">Date of birth (d/m/y):</p>
-          <div className="border-b border-black col-span-2"></div>
+          <div className="border-b border-black col-span-2 py-1">{savedFormData?.date_of_birth}</div>
         </div>
         <div>
           <p className="font-semibold mb-3">
@@ -91,14 +138,26 @@ const PrintPage = () => {
             indicate:
           </p>
         </div>
-        <div className="grid grid-cols-2 mb-5 gap-2">
+        {
+          savedFormData?.caregivers?.length > 0 && savedFormData?.caregivers?.length?.map((cg) => (<div className="grid grid-cols-2 mb-5 gap-2">
           <div className="grid grid-cols-3">
             <p className=" ">Caregiver name:</p>
-            <div className="border-b border-black col-span-2"></div>
+            <div className="border-b border-black col-span-2 py-1">{cg.care_giver_name}</div>
           </div>
           <div className="grid grid-cols-3">
             <p className="">Relationship to client:</p>
-            <div className="border-b border-black col-span-2"></div>
+            <div className="border-b border-black col-span-2 py-1">{cg.relationship_to_client}</div>
+          </div>
+        </div>))
+        }
+        <div className="grid grid-cols-2 mb-5 gap-2">
+          <div className="grid grid-cols-3">
+            <p className=" ">Caregiver name:</p>
+            <div className="border-b border-black col-span-2 py-1"></div>
+          </div>
+          <div className="grid grid-cols-3">
+            <p className="">Relationship to client:</p>
+            <div className="border-b border-black col-span-2 py-1"></div>
           </div>
         </div>
         <p>
@@ -109,9 +168,10 @@ const PrintPage = () => {
         </p>
 
         <div className="grid grid-cols-2 mb-5 gap-2">
-          <div className="border-b border-black my-5"></div>
-          <div className="border-b border-black my-5"></div>
-          <div className="border-b border-black my-5"></div>
+          {
+            savedFormData?.caregiver_types.map(ct => (<p className="border-b border-black my-5 py-1">{ct.institution_name}</p>))
+          }
+          
         </div>
         <div className="grid grid-cols-5">
           <div className="col-span-4 border border-black p-5">
@@ -129,7 +189,7 @@ const PrintPage = () => {
             <div className="">
               {["yes", "no"].map((choice) => (
                 <div key={choice}>
-                  <input type="radio" name="communicate_radio" value={choice} />
+                  <input type="radio" name="communicate_radio" value={choice} disabled checked={choice == savedFormData?.contact_me} />
                   <label
                     htmlFor="communicate_radio_yes"
                     className="mx-2 capitalize"
@@ -150,14 +210,14 @@ const PrintPage = () => {
             </p>
             <div className="grid grid-cols-5 mb-5">
               <p className="">Email:</p>
-              <div className="border-b border-black col-span-4"></div>
+              <div className="border-b border-black col-span-4 py-1">{savedFormData?.email_to_communicate_with}</div>
             </div>
           </div>
           <div className="border border-black p-5">
             <div className="">
-              {["yes", "no"].map((choice) => (
-                <div key={choice}>
-                  <input type="radio" name="communicate_radio" value={choice} />
+              {["yes", "no"].map((choice, index) => (
+                <div key={index}>
+                  <input type="radio" name="communicate_email" value={choice} disabled checked={choice == savedFormData?.permission_to_email} />
                   <label
                     htmlFor="communicate_radio_yes"
                     className="mx-2 capitalize"
@@ -182,7 +242,7 @@ const PrintPage = () => {
             <div className="">
               {["yes", "no"].map((choice) => (
                 <div key={choice}>
-                  <input type="radio" name="communicate_radio" value={choice} />
+                  <input type="radio" name="communicate_text" value={choice} disabled checked={choice == savedFormData?.permission_to_text} />
                   <label
                     htmlFor="communicate_radio_yes"
                     className="mx-2 capitalize"
@@ -213,14 +273,16 @@ const PrintPage = () => {
             By signing below, you confirm that you have legal authority to give
             consent.
           </p>
-          <div className="grid grid-cols-5 mb-5 gap-2">
-            <div className="grid grid-cols-3 col-span-4">
+          <div className="grid grid-cols-5 mb-5 gap-2 items-end">
+            <div className="grid grid-cols-3 col-span-4 items-end">
               <p className=" ">Client or Legal Guardian Signature:</p>
-              <div className="border-b border-black col-span-2"></div>
+              <div className="border-b border-black col-span-2">
+                <img src={savedFormData?.image_base64}/>
+              </div>
             </div>
             <div className="grid grid-cols-3">
               <p className="">Date:</p>
-              <div className="border-b border-black col-span-2"></div>
+              <div className="border-b border-black col-span-2 py-1">{savedFormData?.date_of_signature}</div>
             </div>
           </div>
           {/* <Signature signatureImage={signatureImage} setSignatureImage={setSignatureImage} /> */}
@@ -230,9 +292,15 @@ const PrintPage = () => {
         <button
             onClick={handleGenerate}
           type="submit"
-          className="text-white bg-[#28AF2E] border border-[#28AF2E] rounded px-2 md:px-4 py-2 text-sm mt-2"
+          className="text-white border border-[#851B56] bg-[#851B56] rounded px-2 md:px-4 py-2 text-sm mt-2"
         >
           Submit
+        </button>
+        <button
+            onClick={() => navigate('/consent-to-release-client-information')}
+          className="text-white  border border-[#851B56] bg-[#fff] text-[#851B56] rounded px-2 md:px-4 py-2 text-sm mt-2 ml-5"
+        >
+          Back
         </button>
       </div>
     </div>

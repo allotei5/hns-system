@@ -3,8 +3,8 @@ import InputText from "./InputText";
 
 const RecepientPerson = ({ recepient, recepients, setRecepients }) => {
   const uniqueId = useId();
-  const updateName = (institution_name) => {
-    setRecepients(recepients.map(rec => rec.id == recepient.id ? { ...recepient, institution_name} : rec))
+  const updateName = (relationship_to_client) => {
+    setRecepients(recepients.map(rec => rec.id == recepient.id ? { ...recepient, relationship_to_client, institution_name: relationship_to_client } : rec))
   };
   console.log(recepient)
 
@@ -18,7 +18,7 @@ const RecepientPerson = ({ recepient, recepients, setRecepients }) => {
           label="Recepient Name"
           htFor={`recepientName-${uniqueId}`}
           required={true}
-          value={recepient.institution_name}
+          value={recepient.relationship_to_client}
           setValue={updateName}
           className=""
         />
