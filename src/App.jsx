@@ -8,6 +8,7 @@ import LandingPage from './pages/LandingPage'
 import Navbar from './components/NavBar.jsx'
 import ConsentList from './pages/ConsentList.jsx'
 import ConsentToReleaseClientInformation from './pages/ConsentToReleaseClientInformation.jsx'
+import PrintPage from './pages/PrintPage.jsx'
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: '/consent-to-release-client-information',
         element: <ConsentToReleaseClientInformation />
+      },
+      {
+        path: '/print',
+        element: <PrintPage />
       },
     ]
   }

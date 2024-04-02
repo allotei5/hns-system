@@ -11,13 +11,17 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.18",
+    "aws-sdk": "^2.1590.0",
     "axios": "^1.6.8",
     "heroicons": "^2.1.1",
+    "html2canvas": "^1.4.1",
     "joi": "^17.12.2",
+    "jspdf": "^2.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",
     "react-signature-canvas": "^1.0.6",
+    "react-to-pdf": "^1.0.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

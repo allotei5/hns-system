@@ -136,7 +136,7 @@ const ConsentToReleaseClientInformation = () => {
     return errors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const errors = validate();
@@ -145,6 +145,12 @@ const ConsentToReleaseClientInformation = () => {
     if (errors) return;
 
     console.log("form submitted", finalFormData);
+    try {
+      const res = await api.post("/consent", finalFormData);
+      console.log(res)
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   // if (!alert) {
