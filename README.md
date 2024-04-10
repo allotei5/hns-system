@@ -1,8 +1,13 @@
 # React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Hearing And Speech Nova Scotia Frontend
 
-Currently, two official plugins are available:
+Welcome
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+To run the frontend of our project you will need to follow these steps:
+1. Clone the repository or download the code
+2. cd into the directory on your local machine
+3. Run the command "npm install" (might need to have npm installed on your machine)
+4. Run the command "npm run dev" to start the application
+5. If the backend has been taken down due to AWS charges, you will have to host the code on your machine as well and change the api url in src > api > api.js to your localhost
+6. When asked to login use email: admin@gmail.com and password: 1
