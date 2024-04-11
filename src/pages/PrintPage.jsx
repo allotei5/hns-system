@@ -76,8 +76,8 @@ const PrintPage = () => {
       };
       const uploadPDFToS3 = async (pdfBlob) => {
         const s3 = new AWS.S3({
-            accessKeyId: 'AKIAVRUVP243WUV2M44K',
-            secretAccessKey: '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',
+            accessKeyId: 'removed',
+            secretAccessKey: 'removed',
             region: 'us-west-2',
         });
       
